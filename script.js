@@ -213,9 +213,18 @@ const getFilteredCourses = () => {
 
 // Render the course cards.
 const renderCourses = () => {
+  const isInitialState =
+    !universitySearch.value.trim() &&
+    !courseAreaSearch.value.trim() &&
+    !courseSearch.value.trim() &&
+    !degreeFilter.value &&
+    !sortFilter.value;
   const filteredCourses = getFilteredCourses();
+  const visibleCourses = isInitialState
+    ? filteredCourses.slice(0, 10)
+    : filteredCourses;
 
-  courseGrid.innerHTML = filteredCourses
+  courseGrid.innerHTML = visibleCourses
     .map((course) => {
       return `
         <article class="course-card">
@@ -264,6 +273,31 @@ const resetFilters = () => {
 ].forEach((input) => {
   input.addEventListener("input", renderCourses);
   input.addEventListener("change", renderCourses);
+});
+
+[universitySearch, courseAreaSearch].forEach((input) => {
+  input.addEventListener("pointerdown", () => {
+    if (input.value && !input.dataset.previousValue) {
+      input.dataset.previousValue = input.value;
+      input.value = "";
+      if (typeof input.showPicker === "function") {
+        input.showPicker();
+      }
+    }
+  });
+
+  input.addEventListener("blur", () => {
+    if (!input.value && input.dataset.previousValue) {
+      input.value = input.dataset.previousValue;
+      delete input.dataset.previousValue;
+    }
+  });
+
+  input.addEventListener("input", () => {
+    if (input.dataset.previousValue && input.value) {
+      delete input.dataset.previousValue;
+    }
+  });
 });
 
 resetButton.addEventListener("click", resetFilters);
