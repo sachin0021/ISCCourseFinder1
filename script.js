@@ -60,12 +60,15 @@ const parseCSV = (csvText) => {
       row[header] = values[index] ?? "";
     });
 
+    const durationValue = row["Duration"];
+    const durationHasMonths = /months?/i.test(durationValue);
+
     return {
       courseName: row["Course Name"],
       universityName: row["University"],
       universityType: row["University Type"],
       degreeType: row["Degree Type"],
-      duration: `${row["Duration"]} years`,
+      duration: durationHasMonths ? durationValue : `${durationValue} years`,
       language: row["Language"],
       courseCode: row["Course Code"],
       courseArea: row["Course Area"],
@@ -213,9 +216,18 @@ const getFilteredCourses = () => {
 
 // Render the course cards.
 const renderCourses = () => {
+  const isInitialState =
+    !universitySearch.value.trim() &&
+    !courseAreaSearch.value.trim() &&
+    !courseSearch.value.trim() &&
+    !degreeFilter.value &&
+    !sortFilter.value;
   const filteredCourses = getFilteredCourses();
+  const visibleCourses = isInitialState
+    ? filteredCourses.slice(0, 10)
+    : filteredCourses;
 
-  courseGrid.innerHTML = filteredCourses
+  courseGrid.innerHTML = visibleCourses
     .map((course) => {
       return `
         <article class="course-card">
@@ -233,9 +245,11 @@ const renderCourses = () => {
             <span><strong>Country</strong><span>Italy</span></span>
           </div>
           <div class="course-actions">
+            <!--
             <a class="primary-button" href="${course.website}" target="_blank" rel="noopener">
               Visit
             </a>
+            -->
           </div>
         </article>
       `;
@@ -264,6 +278,25 @@ const resetFilters = () => {
 ].forEach((input) => {
   input.addEventListener("input", renderCourses);
   input.addEventListener("change", renderCourses);
+});
+
+[universitySearch, courseAreaSearch].forEach((input) => {
+  input.addEventListener("pointerdown", () => {
+    if (!input.value) {
+      return;
+    }
+
+    const originalValue = input.value;
+    input.value = "";
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+    }
+    requestAnimationFrame(() => {
+      if (document.activeElement === input && !input.value) {
+        input.value = originalValue;
+      }
+    });
+  });
 });
 
 resetButton.addEventListener("click", resetFilters);
