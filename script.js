@@ -60,12 +60,15 @@ const parseCSV = (csvText) => {
       row[header] = values[index] ?? "";
     });
 
+    const durationValue = row["Duration"];
+    const durationHasMonths = /months?/i.test(durationValue);
+
     return {
       courseName: row["Course Name"],
       universityName: row["University"],
       universityType: row["University Type"],
       degreeType: row["Degree Type"],
-      duration: `${row["Duration"]} years`,
+      duration: durationHasMonths ? durationValue : `${durationValue} years`,
       language: row["Language"],
       courseCode: row["Course Code"],
       courseArea: row["Course Area"],
