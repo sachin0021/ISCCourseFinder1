@@ -245,11 +245,9 @@ const renderCourses = () => {
             <span><strong>Country</strong><span>Italy</span></span>
           </div>
           <div class="course-actions">
-            <!--
             <a class="primary-button" href="${course.website}" target="_blank" rel="noopener">
               Visit
             </a>
-            -->
           </div>
         </article>
       `;
